@@ -8,7 +8,7 @@ const userSchema = mongoose.Schema({
   picture: String,
   bio: String,
   studentCard: String,
-  creditCard: Number,
+  creditCard: Object,
   token: String,
 });
 
