@@ -10,7 +10,7 @@ const cloudinary = require("cloudinary").v2;
 const fs = require("fs");
 
 const { checkBody } = require("../modules/checkBody");
-import { passwordRegex, emailRegex } from "../modules/regex";
+const { passwordRegex, emailRegex } = require("../modules/regex");
 
 //. Upload file
 router.post("/upload", async function (req, res) {
