@@ -84,6 +84,7 @@ router.post("/signup", function (req, res) {
 //. Signin
 router.post("/signin", function (req, res) {
   const { username, password } = req.body;
+  console.log({ username, password });
 
   // Check if the fields are empty or null:
   if (!checkBody([username, password])) {
