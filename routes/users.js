@@ -87,7 +87,11 @@ router.post("/signin", function (req, res) {
 
   // Check if the fields are empty or null:
   if (!checkBody([username, password])) {
-    res.json({ result: false, error: "Champs manquants ou vides." });
+    res.json({
+      result: false,
+      errorSrc: "field",
+      error: "Champs manquants ou vides.",
+    });
     return;
   }
 
@@ -96,13 +100,18 @@ router.post("/signin", function (req, res) {
     if (!data) {
       res.json({
         result: false,
+        errorSrc: "username",
         error: "Utilisateur(trice) non reconnu(e).",
       });
     } else {
       if (bcrypt.compareSync(password, data.password)) {
         res.json({ result: true, token: data.token });
       } else {
-        res.json({ result: false, error: "Mot de passe non valide." });
+        res.json({
+          result: false,
+          errorSrc: "password",
+          error: "Mot de passe non valide.",
+        });
       }
     }
   });
