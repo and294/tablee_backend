@@ -96,7 +96,7 @@ router.post("/signup", function (req, res) {
         password: hash,
         token: uid2(32),
         picture: "",
-        studentCard: "",
+        studentCard,
         bio: "",
         creditCard: {
           name: "",
@@ -144,13 +144,7 @@ router.post("/signin", function (req, res) {
         res.json({
           result: false,
           errorSrc: "password",
-          error: `Votre mot de passe doit contenir au moins:
-
-          - 8 caractères,
-          - 1 lettre minuscule,
-          - 1 lettre majuscule,
-          - 1 chiffre,
-          - 1 caractère spécial`,
+          error: "Mot de passe erroné.",
         });
       }
     }
