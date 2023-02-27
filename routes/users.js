@@ -33,25 +33,46 @@ router.post("/signup", function (req, res) {
 
   // Check if any of the fields is empty or null
   if (!checkBody([username, firstname, email, password])) {
-    res.json({ result: false, error: "Champs manquants ou vides." });
+    res.json({
+      result: false,
+      errorSrc: "field",
+      error: "Champs manquants ou vides.",
+    });
     return;
   }
 
   // Check if the password is strong enough -> 8 characters, 1 lowercase, 1 uppercase, 1 numeric, 1 special
   if (!passwordRegex.test(password)) {
-    res.json({ result: false, error: "Mot de passe pas assez sécurisé." });
+    res.json({
+      result: false,
+      errorSrc: "password",
+      error: `Le mot de passe doit contenir au moins:
+      - 8 caractères,
+      - 1 lettre minuscule,
+      - 1 lettre majuscule,
+      - 1 chiffre,
+      - 1 caractère spécial`,
+    });
     return;
   }
 
   // Block certain domains -> gmail, yahoo, hotmail, aol, msn, icloud, wanadoo, orange, free, live, outlook etc...
-  if (!emailRegex.test(email)) {
-    res.json({ result: false, error: "Adresse email étudiant non valide." });
+  if (emailRegex.test(email)) {
+    res.json({
+      result: false,
+      errorSrc: "email",
+      error: "Adresse email étudiant non valide.",
+    });
     return;
   }
 
   // Check if the student card has been saved
   if (!checkBody([studentCard])) {
-    res.json({ result: false, error: "Carte étudiant manquante." });
+    res.json({
+      result: false,
+      errorSrc: "studentCard",
+      error: "Carte étudiant manquante.",
+    });
     return;
   }
 
@@ -60,6 +81,7 @@ router.post("/signup", function (req, res) {
     if (data) {
       res.json({
         result: false,
+        errorSrc: "username",
         error: "Utilisateur(trice) déjà inscrit(e).",
       });
     } else {
@@ -68,10 +90,22 @@ router.post("/signup", function (req, res) {
 
       // Save the info in the database:
       const newUser = new User({
-        firstname,
         username,
+        firstname,
+        email,
         password: hash,
         token: uid2(32),
+        picture: "",
+        studentCard: "",
+        bio: "",
+        creditCard: {
+          name: "",
+          number: null,
+          expirationDate: null, // format: MM/YY
+          cvc: null,
+        },
+        likes: [],
+        history: [],
       });
 
       newUser.save().then(() => {
@@ -84,7 +118,6 @@ router.post("/signup", function (req, res) {
 //. Signin
 router.post("/signin", function (req, res) {
   const { username, password } = req.body;
-  console.log({ username, password });
 
   // Check if the fields are empty or null:
   if (!checkBody([username, password])) {
@@ -111,7 +144,13 @@ router.post("/signin", function (req, res) {
         res.json({
           result: false,
           errorSrc: "password",
-          error: "Mot de passe non valide.",
+          error: `Votre mot de passe doit contenir au moins:
+
+          - 8 caractères,
+          - 1 lettre minuscule,
+          - 1 lettre majuscule,
+          - 1 chiffre,
+          - 1 caractère spécial`,
         });
       }
     }
