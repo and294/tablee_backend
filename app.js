@@ -29,5 +29,7 @@ var indexRouter = require("./routes/index");
 app.use("/", indexRouter);
 var usersRouter = require("./routes/users");
 app.use("/users", usersRouter);
+var restaurantsRouter = require("./routes/restaurants");
+app.use("/restaurants", restaurantsRouter);
 
 module.exports = app;
