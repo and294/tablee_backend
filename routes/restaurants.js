@@ -55,16 +55,16 @@ router.get("/", function (req, res) {
   Restaurant.find({}).then((data) => res.json({ allRestaurants: data }));
 });
 
-//. Get restaurants by cuisineTypes or by Name
+//. Get restaurants by cuisineTypes or by Name ('^' +search + '$', 'i')
 router.get("/:query", function (req, res) {
   Restaurant.findOne(
-    { name: { $regex: new RegExp(req.params.query, "i") } } //search by name
+    { name: { $regex: new RegExp("^" + req.params.query + "$", "i") } } //search by name
   ).then((data) => {
     if (data) {
       res.json({ result: true, restaurant: data });
     } else {
       Restaurant.find({
-        cuisineTypes: { $regex: new RegExp(req.params.query, "i") }, //search by cuisineTypes
+        cuisineTypes: { $regex: new RegExp("^" + req.params.query + "$", "i") }, //search by cuisineTypes
       }).then((data) => {
         if (data.length > 0) {
           res.json({ result: true, restaurant: data });
