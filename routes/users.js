@@ -165,5 +165,12 @@ router.get("/", function (req, res) {
   User.find({}).then((data) => res.json({ allUsers: data }));
 });
 
+router.put("/:token", async (req, res) => {
+  const token = req.params.token;
+  const update = req.body;
+  await User.findOneAndUpdate(token, update);
+  res.json({ result: true });
+});
+
 // Route export:
 module.exports = router;
