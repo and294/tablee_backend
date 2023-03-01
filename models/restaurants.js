@@ -34,6 +34,7 @@ const restaurantSchema = mongoose.Schema({
   name: String,
   cuisineTypes: String,
   email: String,
+  token: String,
   address: addressSchema,
   averagePrice: Number,
   menuItems: [menuItemsSchema],

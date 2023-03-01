@@ -2,6 +2,7 @@ var express = require("express");
 var router = express.Router();
 
 const { checkBody } = require("../modules/checkBody");
+const uid2 = require("uid2");
 
 const Restaurant = require("../models/restaurants");
 const fetch = require("node-fetch");
@@ -12,6 +13,7 @@ router.post("/", (req, res) => {
     name,
     cuisineTypes,
     email,
+    token,
     address,
     averagePrice,
     phone,
@@ -31,10 +33,11 @@ router.post("/", (req, res) => {
       name,
       cuisineTypes,
       email,
+      token: uid2(32),
       address: {
-        streetNumber: 3,
-        streetName: "rue Royale",
-        postCode: 75008,
+        streetNumber: 66,
+        streetName: "avenue d'Ivry",
+        postCode: 75013,
         city: "Paris",
       },
       averagePrice,
@@ -63,7 +66,7 @@ router.get("/all", async function (req, res) {
   const allRestaurants = await Restaurant.find({});
   for (const restaurant of allRestaurants) {
     const { streetNumber, streetName, postCode } = restaurant.address;
-    const { name, cuisineTypes, description, averagePrice } = restaurant;
+    const { name, cuisineTypes, token, description, averagePrice } = restaurant;
     const restaurantAddress = `${streetNumber} ${streetName} ${postCode}`;
     const apiResponse = await fetch(
       `https://api-adresse.data.gouv.fr/search/?q=${restaurantAddress}`
@@ -75,6 +78,7 @@ router.get("/all", async function (req, res) {
       name,
       cuisineTypes,
       description,
+      token,
       averagePrice,
       latitude,
       longitude,
@@ -84,23 +88,21 @@ router.get("/all", async function (req, res) {
   res.json({ result: true, allRestaurants: restaurantArr });
 });
 
-//. Get restaurants by cuisineTypes or by Name ('^' +search + '$', 'i')
-router.get("/:query", function (req, res) {
+//. Get restaurants by cuisineTypes or by Token ('^' +search + '$', 'i')
+router.get("/:token", function (req, res) {
   Restaurant.findOne(
-    { name: { $regex: new RegExp("^" + req.params.query + "$", "i") } } //search by name
+    { token: req.params.token } //search by token
   ).then((data) => {
     if (data) {
       res.json({ result: true, restaurant: data });
-    } else {
+    } /*else {
       Restaurant.find({
         cuisineTypes: { $regex: new RegExp("^" + req.params.query + "$", "i") }, //search by cuisineTypes
       }).then((data) => {
         if (data.length > 0) {
           res.json({ result: true, restaurant: data });
-        } else {
-          res.json({ result: false, error: "pas de resultat" });
-        }
-      });
+        }*/ else {
+      res.json({ result: false, error: "pas de resultat" });
     }
   });
 });
