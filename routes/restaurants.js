@@ -63,7 +63,7 @@ router.get("/all", async function (req, res) {
   const allRestaurants = await Restaurant.find({});
   for (const restaurant of allRestaurants) {
     const { streetNumber, streetName, postCode } = restaurant.address;
-    const { name } = restaurant;
+    const { name, cuisineTypes, description, averagePrice } = restaurant;
     const restaurantAddress = `${streetNumber} ${streetName} ${postCode}`;
     const apiResponse = await fetch(
       `https://api-adresse.data.gouv.fr/search/?q=${restaurantAddress}`
@@ -71,7 +71,14 @@ router.get("/all", async function (req, res) {
     const apiData = await apiResponse.json();
     const latitude = apiData.features[0].geometry.coordinates[1];
     const longitude = apiData.features[0].geometry.coordinates[0];
-    const coordinates = { restaurantName: name, latitude, longitude };
+    const coordinates = {
+      name,
+      cuisineTypes,
+      description,
+      averagePrice,
+      latitude,
+      longitude,
+    };
     restaurantArr.push(coordinates);
   }
   res.json({ result: true, allRestaurants: restaurantArr });
