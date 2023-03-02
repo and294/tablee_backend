@@ -12,7 +12,10 @@ const fs = require("fs");
 const { checkBody } = require("../modules/checkBody");
 const { passwordRegex, emailRegex } = require("../modules/regex");
 
-//. Upload file
+/* -------------------------------------------------------------------------- */
+/*                                 Upload file                                */
+/* -------------------------------------------------------------------------- */
+
 router.post("/upload", async (req, res) => {
   const photoPath = `/tmp/${uniqid()}.jpg`;
   const resultMove = await req.files.photoFromFront.mv(photoPath);
@@ -27,7 +30,10 @@ router.post("/upload", async (req, res) => {
   }
 });
 
-//. Signup
+/* -------------------------------------------------------------------------- */
+/*                                   Signup                                   */
+/* -------------------------------------------------------------------------- */
+
 router.post("/signup", function (req, res) {
   const { username, firstname, email, password, studentCard } = req.body;
 
@@ -115,7 +121,10 @@ router.post("/signup", function (req, res) {
   });
 });
 
-//. Signin
+/* -------------------------------------------------------------------------- */
+/*                                   Signin                                   */
+/* -------------------------------------------------------------------------- */
+
 router.post("/signin", function (req, res) {
   const { username, password } = req.body;
 
@@ -151,7 +160,10 @@ router.post("/signin", function (req, res) {
   });
 });
 
-//. Get a single user's infos
+/* -------------------------------------------------------------------------- */
+/*                          Get a single user's infos                         */
+/* -------------------------------------------------------------------------- */
+
 router.get("/:token", function (req, res) {
   const { token } = req.params;
 
@@ -160,14 +172,25 @@ router.get("/:token", function (req, res) {
   });
 });
 
-//. Get all users' infos
+/* -------------------------------------------------------------------------- */
+/*                            Get all users' infos                            */
+/* -------------------------------------------------------------------------- */
+
 router.get("/", function (req, res) {
   User.find({}).then((data) => res.json({ allUsers: data }));
 });
 
+/* -------------------------------------------------------------------------- */
+/*                             Change users' infos                            */
+/* -------------------------------------------------------------------------- */
+
 router.put("/:token", async (req, res) => {
   const token = req.params.token;
-  const update = req.body;
+  let update = req.body;
+  if (req.body.password) {
+    const hash = bcrypt.hashSync(req.body.password, 10);
+    update = { password: hash };
+  }
   await User.findOneAndUpdate(token, update);
   res.json({ result: true });
 });
