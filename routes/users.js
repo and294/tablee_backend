@@ -31,6 +31,12 @@ router.post("/upload", async (req, res) => {
 });
 
 /* -------------------------------------------------------------------------- */
+/*                        Générer mot de passe sécurisé                       */
+/* -------------------------------------------------------------------------- */
+
+// router.post("")
+
+/* -------------------------------------------------------------------------- */
 /*                                   Signup                                   */
 /* -------------------------------------------------------------------------- */
 
@@ -185,14 +191,35 @@ router.get("/", function (req, res) {
 /* -------------------------------------------------------------------------- */
 
 router.put("/:token", async (req, res) => {
-  const token = req.params.token;
+  const token = req.params;
   let update = req.body;
+  let passwordCheck = true;
+  let hash = null;
   if (req.body.password) {
-    const hash = bcrypt.hashSync(req.body.password, 10);
-    update = { password: hash };
+    // Check if the password is strong enough -> 8 characters, 1 lowercase, 1 uppercase, 1 numeric, 1 special
+    if (!passwordRegex.test(req.body.password)) {
+      passwordCheck = false;
+    } else {
+      hash = bcrypt.hashSync(req.body.password, 10);
+      update = { password: hash };
+    }
   }
-  await User.findOneAndUpdate(token, update);
-  res.json({ result: true });
+  if (!passwordCheck) {
+    console.log("coucou");
+    res.json({
+      result: false,
+      errorSrc: "password",
+      error: `Le mot de passe doit contenir au moins:
+    - 8 caractères,
+    - 1 lettre minuscule,
+    - 1 lettre majuscule,
+    - 1 chiffre,
+    - 1 caractère spécial`,
+    });
+  } else {
+    await User.findOneAndUpdate(token, update);
+    res.json({ result: true });
+  }
 });
 
 // Route export:
