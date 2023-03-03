@@ -238,7 +238,7 @@ router.put("/like/:token", async (req, res) => {
     // User has not liked the restaurant
     await userLikeArray.push(restaurantId); //Add restaurant ID to likes
     const update = { likes: userLikeArray };
-    await User.findOneAndUpdate(token, update);
+    await User.findOneAndUpdate({ token }, update);
     res.json({ result: true });
   }
 });
