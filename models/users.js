@@ -1,12 +1,5 @@
 const mongoose = require("mongoose");
 
-const creditCardSchema = mongoose.Schema({
-  name: String,
-  number: Number,
-  expirationDate: Date, // format: MM/YY
-  cvc: Number,
-});
-
 const userSchema = mongoose.Schema({
   username: String,
   firstname: String,
@@ -16,7 +9,7 @@ const userSchema = mongoose.Schema({
   picture: String,
   studentCard: String,
   bio: String,
-  creditCard: creditCardSchema,
+  stripeId: String,
   likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "restaurants" }],
   history: [{ type: mongoose.Schema.Types.ObjectId, ref: "bookings" }],
 });

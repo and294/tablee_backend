@@ -31,5 +31,11 @@ var usersRouter = require("./routes/users");
 app.use("/users", usersRouter);
 var restaurantsRouter = require("./routes/restaurants");
 app.use("/restaurants", restaurantsRouter);
+var productRouter = require("./routes/restaurants");
+app.use("/products", productRouter);
+var paymentRouter = require("./routes/payments");
+app.use("/payments", paymentRouter);
+var customerRouter = require("./routes/customers");
+app.use("/customers", customerRouter);
 
 module.exports = app;

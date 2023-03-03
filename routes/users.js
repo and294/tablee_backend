@@ -110,12 +110,7 @@ router.post("/signup", function (req, res) {
         picture: "",
         studentCard,
         bio: "",
-        creditCard: {
-          name: "",
-          number: null,
-          expirationDate: null, // format: MM/YY
-          cvc: null,
-        },
+        stripeId: "",
         likes: [],
         history: [],
       });
