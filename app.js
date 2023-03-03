@@ -27,15 +27,23 @@ app.use(cors());
 //. Routes
 var indexRouter = require("./routes/index");
 app.use("/", indexRouter);
+
 var usersRouter = require("./routes/users");
 app.use("/users", usersRouter);
+
 var restaurantsRouter = require("./routes/restaurants");
 app.use("/restaurants", restaurantsRouter);
-var productRouter = require("./routes/restaurants");
+
+var productRouter = require("./routes/products");
 app.use("/products", productRouter);
+
 var paymentRouter = require("./routes/payments");
 app.use("/payments", paymentRouter);
+
 var customerRouter = require("./routes/customers");
 app.use("/customers", customerRouter);
+
+var mailsRouter = require("./routes/mails");
+app.use("/mails", mailsRouter);
 
 module.exports = app;
