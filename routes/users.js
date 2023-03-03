@@ -174,9 +174,11 @@ router.post("/signin", function (req, res) {
 router.get("/:token", function (req, res) {
   const { token } = req.params;
 
-  User.findOne({ token }).then((data) => {
-    res.json({ result: true, user: data });
-  });
+  User.findOne({ token })
+    .populate("likes")
+    .then((data) => {
+      res.json({ result: true, user: data });
+    });
 });
 
 /* -------------------------------------------------------------------------- */
@@ -225,17 +227,25 @@ router.put("/:token", async (req, res) => {
 
 router.put("/like/:token", async (req, res) => {
   const { token } = req.params;
+  console.log(token);
   const userResponse = await User.findOne({ token });
   const userLikeArray = userResponse.likes;
   const restaurantToken = req.body.token;
   const restaurantResponse = await Restaurant.findOne({
     token: restaurantToken,
   });
-  const restaurantId = restaurantResponse._id;
-  await userLikeArray.push(restaurantId);
-  const update = { likes: userLikeArray };
-  await User.findOneAndUpdate(token, update);
-  res.json({ result: true });
+  const restaurantId = restaurantResponse._id.valueOf();
+  if (userLikeArray.includes(restaurantId)) {
+    return;
+    //User already liked the restaurant
+    //userLikeArray = userLikeArray.filter((e) => e !== restaurantId);
+  } else {
+    // User has not liked the restaurant
+    await userLikeArray.push(restaurantId); //Add restaurant ID to likes
+    const update = { likes: userLikeArray };
+    await User.findOneAndUpdate(token, update);
+    res.json({ result: true });
+  }
 });
 
 // Route export:
