@@ -2,6 +2,7 @@ var express = require("express");
 var router = express.Router();
 
 const User = require("../models/users");
+const Restaurant = require("../models/restaurants");
 
 const uid2 = require("uid2");
 const bcrypt = require("bcrypt");
@@ -220,6 +221,21 @@ router.put("/:token", async (req, res) => {
     await User.findOneAndUpdate(token, update);
     res.json({ result: true });
   }
+});
+
+router.put("/like/:token", async (req, res) => {
+  const { token } = req.params;
+  const userResponse = await User.findOne({ token });
+  const userLikeArray = userResponse.likes;
+  const restaurantToken = req.body.token;
+  const restaurantResponse = await Restaurant.findOne({
+    token: restaurantToken,
+  });
+  const restaurantId = restaurantResponse._id;
+  await userLikeArray.push(restaurantId);
+  const update = { likes: userLikeArray };
+  await User.findOneAndUpdate(token, update);
+  res.json({ result: true });
 });
 
 // Route export:
