@@ -37,8 +37,8 @@ app.use("/restaurants", restaurantsRouter);
 var productRouter = require("./routes/products");
 app.use("/products", productRouter);
 
-var paymentRouter = require("./routes/payments");
-app.use("/payments", paymentRouter);
+var paymentRouter = require("./routes/cards");
+app.use("/cards", paymentRouter);
 
 var customerRouter = require("./routes/customers");
 app.use("/customers", customerRouter);

@@ -4,12 +4,10 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const User = require("../models/users");
 
 /* -------------------------------------------------------------------------- */
-/*                                  Customers                                 */
+/*                              Create a customer                             */
 /* -------------------------------------------------------------------------- */
 
-/* ---------------------------- Create a customer --------------------------- */
-
-router.post("/:token", async function (req, res) {
+router.post("/new/:token", async function (req, res) {
   try {
     const { token } = req.params; // to communicate with MongoDB from frontend
     const { name, email, phone, payment_method } = req.body; // basic information
@@ -37,7 +35,9 @@ router.post("/:token", async function (req, res) {
   }
 });
 
-/* --------------------------- Retrieve a customer -------------------------- */
+/* -------------------------------------------------------------------------- */
+/*                               Find a customer                              */
+/* -------------------------------------------------------------------------- */
 
 router.get("/:token", async function (req, res) {
   try {

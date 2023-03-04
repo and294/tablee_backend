@@ -17,6 +17,7 @@
     "express-session": "^1.17.3",
     "express-validator": "^6.15.0",
     "googleapis": "^112.0.0",
+    "html-to-text": "^9.0.4",
     "moment": "^2.29.4",
     "moment-range": "^4.0.2",
     "mongoose": "^6.9.3",

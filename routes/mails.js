@@ -16,11 +16,10 @@ router.post("/confirm_payment", async function (req, res) {
 
   // send mail with defined transport object
   let info = await transporter.sendMail({
-    from: `"L'équipe Tablée" <${process.env.NODEMAILER_EMAIL}>`, // sender address
+    from: `"Tablée" <${process.env.NODEMAILER_EMAIL}>`, // sender address
     to: recipient, // list of receivers
-    subject: "Merci d'avoir utilisé Tablée !", // Subject line
-    text: "Hello world?", // plain text body
-    html: "<b>Hello world?</b>", // html body
+    subject: "Votre reçu de paiement", // Subject line
+    html: "coucou",
   });
 
   res.json({ result: true, info });
