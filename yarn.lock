@@ -2526,6 +2526,14 @@ gcp-metadata@^5.0.0:
     gaxios "^5.0.0"
     json-bigint "^1.0.0"
 
+generator-virtual-time@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/generator-virtual-time/-/generator-virtual-time-1.0.3.tgz#c9cbcbc8ddf00cbb735fcd4a440123a6e0cffbed"
+  integrity sha512-ZO+pQglZff2IbFybfiYQJEdS/trg0tmuf6JyUACdl/WbDJiecDAx+oTvSwLZeDh3kReP7OmHVvxdhqFkeRy4eA==
+  dependencies:
+    lodash "^4.17.15"
+    moment "^2.24.0"
+
 gensync@^1.0.0-beta.2:
   version "1.0.0-beta.2"
   resolved "https://registry.yarnpkg.com/gensync/-/gensync-1.0.0-beta.2.tgz#32a6ee76c3d7f52d46b2b1ae5d93fea8580a25e0"
@@ -3381,7 +3389,7 @@ locate-path@^5.0.0:
   dependencies:
     p-locate "^4.1.0"
 
-lodash@^4.17.21:
+lodash@^4.17.15, lodash@^4.17.21:
   version "4.17.21"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.21.tgz#679591c564c3bffaae8454cf0b3df370c3d6911c"
   integrity sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==
@@ -3513,7 +3521,7 @@ moment-range@^4.0.2:
   dependencies:
     es6-symbol "^3.1.0"
 
-moment@^2.29.4:
+moment@^2.24.0, moment@^2.29.4:
   version "2.29.4"
   resolved "https://registry.yarnpkg.com/moment/-/moment-2.29.4.tgz#3dbe052889fe7c1b2ed966fcb3a77328964ef108"
   integrity sha512-5LC9SOxjSc2HF6vO2CyuTDNivEdoz2IvyJJGj6X8DJ0eFyfszE0QiEd+iXmBvUP3WHxSjFH/vIsA0EN00cgr8w==
@@ -4397,6 +4405,11 @@ test-exclude@^6.0.0:
     "@istanbuljs/schema" "^0.1.2"
     glob "^7.1.4"
     minimatch "^3.0.4"
+
+time-slot-generator@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/time-slot-generator/-/time-slot-generator-1.0.1.tgz#7b727ffeb96f1c687ab9014ad0f1cd4023aeec8f"
+  integrity sha512-Es76acbCvEdI0FBkjoE3T9ru3aOZBNUA/R7VpjQ8HE9qp811zvTttwIuhY8poicdOiv8ezbGbX+Fz/UABd9e7A==
 
 tmpl@1.0.5:
   version "1.0.5"

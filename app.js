@@ -43,7 +43,10 @@ app.use("/cards", paymentRouter);
 var customerRouter = require("./routes/customers");
 app.use("/customers", customerRouter);
 
-var mailsRouter = require("./routes/mails");
+var mailsRouter = require("./routes/mails"); // Route test
 app.use("/mails", mailsRouter);
+
+var bookingsRouter = require("./routes/bookings");
+app.use("/bookings", bookingsRouter);
 
 module.exports = app;

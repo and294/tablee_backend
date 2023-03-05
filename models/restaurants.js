@@ -20,16 +20,6 @@ const reviewsSchema = mongoose.Schema({
   downVotedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: "users" }],
 });
 
-const availabilitiesSchema = mongoose.Schema({
-  monday: String,
-  tuesday: String,
-  wednesday: String,
-  thursday: String,
-  friday: String,
-  satuday: String,
-  sunday: String,
-});
-
 const restaurantSchema = mongoose.Schema({
   name: String,
   cuisineTypes: String,
@@ -43,7 +33,8 @@ const restaurantSchema = mongoose.Schema({
   description: String,
   perks: [String],
   reviews: [reviewsSchema],
-  availabilities: { availabilitiesSchema },
+  availabilities: [String],
+  timeSlots: [Object],
 });
 
 const Restaurant = mongoose.model("restaurants", restaurantSchema);
