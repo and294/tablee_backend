@@ -114,5 +114,6 @@ router.put("/:token", async function (req, res) {
   res.json({result: true, message: "Restaurant mis à jour avec succès !"});
 });
 
+
 // Route export :
 module.exports = router;

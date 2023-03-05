@@ -1,6 +1,5 @@
 const dayGenerator = require("generator-virtual-time");
 const moment = require("moment");
-const today = new Date();
 
 function toTitleCase(str) {
   return str.toLowerCase().split(" ").map(function (word) {
@@ -11,8 +10,8 @@ function toTitleCase(str) {
 function generateSlots(restaurantName, availabilities) {
   const newArr = [];
   const days = dayGenerator({
-    startDate: moment(today).format("YYYY-MM-DD"),
-    endDate: moment(today.setDate(today.getDate() + 365)).format("YYYY-MM-DD"),
+    startDate: moment().format("YYYY-MM-DD"),
+    endDate: moment().add(1, "years").format("YYYY-MM-DD"),
     title: restaurantName,
     startBlocked: [0, 659],
     middleBlocked: [899, 1079],
