@@ -26,9 +26,13 @@
     "node-fetch": "2",
     "nodemailer": "^6.9.1",
     "nodemon": "^2.0.20",
+<<<<<<< HEAD
+    "socket.io": "^4.6.1",
+=======
     "req-flash": "^0.0.3",
     "stripe": "^11.12.0",
     "time-slot-generator": "^1.0.1",
+>>>>>>> bc5c7b8849c78ce41ab9cce1680c6e6889bd7428
     "uid2": "^1.0.0",
     "uniqid": "^5.4.0"
   },

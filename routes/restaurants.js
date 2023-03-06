@@ -113,7 +113,30 @@ router.put("/:token", async function (req, res) {
   await Restaurant.findOneAndUpdate({token}, {timeSlots});
   res.json({result: true, message: "Restaurant mis à jour avec succès !"});
 });
-
-
+/* -------------------------------------------------------------------------- */
+/*            Route pour ajouter les reviews aux restos déjà en BDD            */
+/* -------------------------------------------------------------------------- */
+router.post("/reviews/:token", async (req, res) => {
+  const { token } = req.params;
+  const {description} = req.body;
+  const restaurantResponse = await Restaurant.findOne({ token });
+  const reviewsArray = restaurantResponse.reviews;
+  const userToken = req.body.token;
+  const userResponse = await User.findOne({
+    token: userToken
+  });
+  const userId = userResponse._id.valueOf();
+  const review = {
+    writer: userId,
+    description,
+    upVotedBy: [],
+    downVotedBy: []
+  }
+    await reviewsArray.push(review);
+    const update = { reviews: reviewsArray };
+    await Restaurant.findOneAndUpdate({ token }, update);
+    res.json({ result: true });
+  }
+);
 // Route export :
 module.exports = router;

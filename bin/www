@@ -4,16 +4,18 @@
  * Module dependencies.
  */
 
-var app = require('../app');
-var debug = require('debug')('tabl-e-backend:server');
-var http = require('http');
+var app = require("../app");
+var debug = require("debug")("tabl-e-backend:server");
+var http = require("http");
+
+const ChatRoom = require("../models/chatRoom");
 
 /**
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '3000');
-app.set('port', port);
+var port = normalizePort(process.env.PORT || "3000");
+app.set("port", port);
 
 /**
  * Create HTTP server.
@@ -21,13 +23,87 @@ app.set('port', port);
 
 var server = http.createServer(app);
 
+// Parametrage Socket.io //
+
+const generateID = () => Math.random().toString(36).substring(2, 10);
+
+let chatRooms = [
+  /*{
+      id: generateID(),
+      name: "Novu Hangouts",
+      messages: [
+          {
+              id: generateID(),
+              text: "Hello guys, welcome!",
+              time: "07:50",
+              user: "Tomer",
+          },]}*/
+];
+
+var io = require("socket.io")(server);
+io.on("connection", function (socket) {
+  //Message de connection d'un utilisateur
+  console.log(`⚡: ${socket.id} user just connected!`);
+
+  //Message de déconnection d'un utilisateur
+  socket.on("disconnect", () => {
+    socket.disconnect();
+    console.log("🔥: A user disconnected");
+  });
+
+  //Creation de nouveau chat
+  socket.on("createRoom", (groupName) => {
+    const newRoom = new ChatRoom({
+      id: generateID(),
+      name: groupName,
+      messages: [],
+    });
+    newRoom.save().then((result) => {
+      io.emit("room-created", result);
+      console.log(result);
+      socket.join(groupName);
+      socket.emit("roomsList", groupName);
+    });
+
+
+    
+    io.emit("sendMessageFromBack", "New user connected");
+
+    socket.on("newMessage", (data) => {
+      const { room_id, message, user, timestamp } = data;
+
+      //Trouve la conversation dans laquelle le message à été envoyé
+      let result = chatRooms.filter((room) => room.id == room_id);
+
+    //Structure d'un message
+      const newMessage = {
+        id: generateID(),
+        text: message,
+        user,
+        time: `${timestamp.hour}:${timestamp.mins}`,
+      };
+      //met à jour les message du chat concerné
+      socket.to(result[0].name).emit("roomMessage", newMessage);
+      ChatRoom.messages.updateOne({ $push: { message: newMessage } });
+
+      //Trigger pour afficher les changements
+      socket.emit("roomsList", chatRooms);
+      socket.emit("foundRoom", result[0].messages);
+    });
+  });
+  /*
+app.get("/api", (req, res) => {
+  res.json(chatRooms);
+});*/
+});
+
 /**
  * Listen on provided port, on all network interfaces.
  */
 
 server.listen(port);
-server.on('error', onError);
-server.on('listening', onListening);
+server.on("error", onError);
+server.on("listening", onListening);
 
 /**
  * Normalize a port into a number, string, or false.
@@ -54,22 +130,20 @@ function normalizePort(val) {
  */
 
 function onError(error) {
-  if (error.syscall !== 'listen') {
+  if (error.syscall !== "listen") {
     throw error;
   }
 
-  var bind = typeof port === 'string'
-    ? 'Pipe ' + port
-    : 'Port ' + port;
+  var bind = typeof port === "string" ? "Pipe " + port : "Port " + port;
 
   // handle specific listen errors with friendly messages
   switch (error.code) {
-    case 'EACCES':
-      console.error(bind + ' requires elevated privileges');
+    case "EACCES":
+      console.error(bind + " requires elevated privileges");
       process.exit(1);
       break;
-    case 'EADDRINUSE':
-      console.error(bind + ' is already in use');
+    case "EADDRINUSE":
+      console.error(bind + " is already in use");
       process.exit(1);
       break;
     default:
@@ -83,8 +157,6 @@ function onError(error) {
 
 function onListening() {
   var addr = server.address();
-  var bind = typeof addr === 'string'
-    ? 'pipe ' + addr
-    : 'port ' + addr.port;
-  debug('Listening on ' + bind);
+  var bind = typeof addr === "string" ? "pipe " + addr : "port " + addr.port;
+  debug("Listening on " + bind);
 }

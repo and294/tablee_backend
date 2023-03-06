@@ -33,6 +33,8 @@ app.use("/users", usersRouter);
 
 var restaurantsRouter = require("./routes/restaurants");
 app.use("/restaurants", restaurantsRouter);
+var messagesRouter = require("./routes/messages");
+app.use("/messages", messagesRouter);
 
 var productRouter = require("./routes/products");
 app.use("/products", productRouter);
