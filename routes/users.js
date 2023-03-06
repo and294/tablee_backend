@@ -10,8 +10,8 @@ const uniqid = require("uniqid");
 const cloudinary = require("cloudinary").v2;
 const fs = require("fs");
 
-const { checkBody } = require("../modules/checkBody");
-const { passwordRegex, emailRegex } = require("../modules/regex");
+const {checkBody} = require("../modules/checkBody");
+const {passwordRegex, emailRegex} = require("../modules/regex");
 
 /* -------------------------------------------------------------------------- */
 /*                                 Upload file                                */
@@ -25,9 +25,9 @@ router.post("/upload", async (req, res) => {
   fs.unlinkSync(photoPath);
 
   if (!resultMove) {
-    res.json({ result: true, url: resultCloudinary.secure_url });
+    res.json({result: true, url: resultCloudinary.secure_url});
   } else {
-    res.json({ result: false, error: resultMove });
+    res.json({result: false, error: resultMove});
   }
 });
 
@@ -36,14 +36,14 @@ router.post("/upload", async (req, res) => {
 /* -------------------------------------------------------------------------- */
 
 router.post("/signup", function (req, res) {
-  const { username, firstname, email, password, studentCard } = req.body;
+  const {username, firstname, email, password, studentCard} = req.body;
 
   // Check if any of the fields is empty or null
   if (!checkBody([username, firstname, email, password])) {
     res.json({
       result: false,
       errorSrc: "field",
-      error: "Champs manquants ou vides.",
+      error: "Champs manquants ou vides."
     });
     return;
   }
@@ -58,7 +58,7 @@ router.post("/signup", function (req, res) {
       - 1 lettre minuscule,
       - 1 lettre majuscule,
       - 1 chiffre,
-      - 1 caractère spécial`,
+      - 1 caractère spécial`
     });
     return;
   }
@@ -68,7 +68,7 @@ router.post("/signup", function (req, res) {
     res.json({
       result: false,
       errorSrc: "email",
-      error: "Adresse email étudiant non valide.",
+      error: "Adresse email étudiant non valide."
     });
     return;
   }
@@ -78,18 +78,18 @@ router.post("/signup", function (req, res) {
     res.json({
       result: false,
       errorSrc: "studentCard",
-      error: "Carte étudiant manquante.",
+      error: "Carte étudiant manquante."
     });
     return;
   }
 
   // Check if the user is already in the database:
-  User.findOne({ username }).then((data) => {
+  User.findOne({username}).then((data) => {
     if (data) {
       res.json({
         result: false,
         errorSrc: "username",
-        error: "Utilisateur(trice) déjà inscrit(e).",
+        error: "Utilisateur(trice) déjà inscrit(e)."
       });
     } else {
       // If all the tests have been validated, hash the password:
@@ -107,11 +107,11 @@ router.post("/signup", function (req, res) {
         bio: "",
         stripeId: "",
         likes: [],
-        history: [],
+        history: []
       });
 
       newUser.save().then(() => {
-        res.json({ result: true, token: newUser.token });
+        res.json({result: true, token: newUser.token});
       });
     }
   });
@@ -122,34 +122,34 @@ router.post("/signup", function (req, res) {
 /* -------------------------------------------------------------------------- */
 
 router.post("/signin", function (req, res) {
-  const { username, password } = req.body;
+  const {username, password} = req.body;
 
   // Check if the fields are empty or null:
   if (!checkBody([username, password])) {
     res.json({
       result: false,
       errorSrc: "field",
-      error: "Champs manquants ou vides.",
+      error: "Champs manquants ou vides."
     });
     return;
   }
 
   // Check if the user is already in the database:
-  User.findOne({ username }).then((data) => {
+  User.findOne({username}).then((data) => {
     if (!data) {
       res.json({
         result: false,
         errorSrc: "username",
-        error: "Utilisateur(trice) non reconnu(e).",
+        error: "Utilisateur(trice) non reconnu(e)."
       });
     } else {
       if (bcrypt.compareSync(password, data.password)) {
-        res.json({ result: true, token: data.token });
+        res.json({result: true, token: data.token});
       } else {
         res.json({
           result: false,
           errorSrc: "password",
-          error: "Mot de passe erroné.",
+          error: "Mot de passe erroné."
         });
       }
     }
@@ -161,13 +161,13 @@ router.post("/signin", function (req, res) {
 /* -------------------------------------------------------------------------- */
 
 router.get("/:token", function (req, res) {
-  const { token } = req.params;
+  const {token} = req.params;
 
-  User.findOne({ token })
-    .populate("likes")
-    .then((data) => {
-      res.json({ result: true, user: data });
-    });
+  User.findOne({token})
+  .populate("likes")
+  .then((data) => {
+    res.json({result: true, user: data});
+  });
 });
 
 /* -------------------------------------------------------------------------- */
@@ -175,7 +175,7 @@ router.get("/:token", function (req, res) {
 /* -------------------------------------------------------------------------- */
 
 router.get("/", function (req, res) {
-  User.find({}).then((data) => res.json({ allUsers: data }));
+  User.find({}).then((data) => res.json({allUsers: data}));
 });
 
 /* -------------------------------------------------------------------------- */
@@ -193,11 +193,10 @@ router.put("/:token", async (req, res) => {
       passwordCheck = false;
     } else {
       hash = bcrypt.hashSync(req.body.password, 10);
-      update = { password: hash };
+      update = {password: hash};
     }
   }
   if (!passwordCheck) {
-    console.log("coucou");
     res.json({
       result: false,
       errorSrc: "password",
@@ -206,11 +205,11 @@ router.put("/:token", async (req, res) => {
     - 1 lettre minuscule,
     - 1 lettre majuscule,
     - 1 chiffre,
-    - 1 caractère spécial`,
+    - 1 caractère spécial`
     });
   } else {
     await User.findOneAndUpdate(token, update);
-    res.json({ result: true });
+    res.json({result: true});
   }
 });
 
@@ -219,13 +218,13 @@ router.put("/:token", async (req, res) => {
 /* -------------------------------------------------------------------------- */
 
 router.put("/like/:token", async (req, res) => {
-  const { token } = req.params;
+  const {token} = req.params;
   console.log(token);
-  const userResponse = await User.findOne({ token });
+  const userResponse = await User.findOne({token});
   const userLikeArray = userResponse.likes;
   const restaurantToken = req.body.token;
   const restaurantResponse = await Restaurant.findOne({
-    token: restaurantToken,
+    token: restaurantToken
   });
   const restaurantId = restaurantResponse._id.valueOf();
   if (userLikeArray.includes(restaurantId)) {
@@ -235,9 +234,9 @@ router.put("/like/:token", async (req, res) => {
   } else {
     // User has not liked the restaurant
     await userLikeArray.push(restaurantId); //Add restaurant ID to likes
-    const update = { likes: userLikeArray };
-    await User.findOneAndUpdate({ token }, update);
-    res.json({ result: true });
+    const update = {likes: userLikeArray};
+    await User.findOneAndUpdate({token}, update);
+    res.json({result: true});
   }
 });
 
