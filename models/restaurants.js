@@ -15,6 +15,7 @@ const menuItemsSchema = mongoose.Schema({
 
 const reviewsSchema = mongoose.Schema({
   writer: { type: mongoose.Schema.Types.ObjectId, ref: "users" },
+  date: Date,
   description: String,
   upVotedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: "users" }],
   downVotedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: "users" }],
