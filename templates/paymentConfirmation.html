@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Confirmation de paiement</title>
+  </head>
+  <body
+    style="
+      background-color: #1d2c3b;
+      font-family: Arial, sans-serif;
+      color: #fff;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+    "
+  >
+    <table
+      align="center"
+      margin="20"
+      cellpadding="0"
+      cellspacing="0"
+      style="
+        background-color: #1d2c3b;
+        max-width: 320px;
+        border: #cdab82 1px solid;
+        padding-left: 20px;
+        padding-right: 20px;
+        border-radius: 10px;
+      "
+    >
+      <tr>
+        <td style="text-align: center">
+          <img
+            src="https://res.cloudinary.com/tablee/image/upload/v1677928308/Logos%20and%20assets/logo_hy8vpq.jpg"
+            alt="Logo Header Tablée"
+            style="
+              max-width: 100px;
+              margin-top: 20px;
+              border-radius: 10px;
+              border: #cdab82 0.5px solid;
+            "
+          />
+        </td>
+      </tr>
+      <tr>
+        <td style="padding-top: 10px; text-align: center">
+          <h1 style="color: #cdab82; text-align: center; font-size: large">
+            Un grand merci !
+          </h1>
+        </td>
+      </tr>
+      <tr style="font-size: small">
+        <td style="text-align: left">
+          <p>Bonjour ${user.firstname},</p>
+          <p style="padding-bottom: 12px; line-height: 22px">
+            Nous voulions simplement te remercier d'avoir utilisé Tablée pour ta
+            réservation. Nous espérons que notre application t'a été utile et
+            que tu continueras à l'utiliser.
+          </p>
+        </td>
+      </tr>
+      <tr>
+        <td
+          style="
+            border: #cdab82 1px solid;
+            padding-left: 10px;
+            border-radius: 10px;
+            padding-bottom: 10px;
+          "
+        >
+          <h2 style="font-size: large; text-align: center; color: #cdab82">
+            Ce que nous proposons:
+          </h2>
+          <div style="font-size: small">
+            <p style="margin: 5px">
+              <span style="color: #cdab82">&#10003;</span> Des restaurants
+              choisis avec soin
+            </p>
+            <p style="margin: 5px">
+              <span style="color: #cdab82">&#10003;</span> Un club privé,
+              gratuit à vie*
+            </p>
+            <p style="margin: 5px">
+              <span style="color: #cdab82">&#10003;</span> Une messagerie
+              interne super sécurisée
+            </p>
+            <p style="margin: 5px">
+              <span style="color: #cdab82">&#10003;</span> Un support client de
+              qualité
+            </p>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding-top: 12px; text-align: center">
+          <h1
+            style="
+              color: #cdab82;
+              text-align: center;
+              font-size: large;
+              margin-bottom: 12px;
+            "
+          >
+            Ton reçu de paiement ?
+          </h1>
+        </td>
+      </tr>
+      <tr>
+        <td style="text-align: center; font-size: small">
+          <p>Tu peux y accéder en cliquant sur ce bouton :</p>
+          <p>
+            <a
+              href="${receipt_url}"
+              style="
+                display: inline-block;
+                background-color: #cdab82;
+                color: #1d2c3b;
+                padding: 12px 12px;
+                margin: 12px 12px;
+                border-radius: 5px;
+                text-decoration: none;
+              "
+              >Voir le reçu</a
+            >
+          </p>
+        </td>
+      </tr>
+      <tr>
+        <td style="text-align: center; border-top: #cdab82 1px solid">
+          <img
+            src="https://res.cloudinary.com/tablee/image/upload/v1677921416/Logos%20and%20assets/header_logo_g24ylx.png"
+            alt=""
+            style="width: 150px; margin-top: 12px"
+          />
+        </td>
+      </tr>
+      <tr>
+        <td style="text-align: center">
+          <p style="font-size: x-small">
+            <a
+              href="mailto: info@tablee.app"
+              style="
+                text-decoration: underline;
+                font-size: x-small;
+                color: #fff;
+              "
+              >info@tablee.app</a
+            >
+          </p>
+          <p style="font-size: x-small; font-style: italic">
+            * Sous réserve d'un quota de 10 recommendations par an
+          </p>
+          <p style="font-size: x-small; margin-top: 20px; color: #cdab82">
+            © 2023 Tous droits réservés
+          </p>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

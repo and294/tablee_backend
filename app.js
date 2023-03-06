@@ -27,11 +27,28 @@ app.use(cors());
 //. Routes
 var indexRouter = require("./routes/index");
 app.use("/", indexRouter);
+
 var usersRouter = require("./routes/users");
 app.use("/users", usersRouter);
+
 var restaurantsRouter = require("./routes/restaurants");
 app.use("/restaurants", restaurantsRouter);
 var messagesRouter = require("./routes/messages");
 app.use("/messages", messagesRouter);
+
+var productRouter = require("./routes/products");
+app.use("/products", productRouter);
+
+var paymentRouter = require("./routes/cards");
+app.use("/cards", paymentRouter);
+
+var customerRouter = require("./routes/customers");
+app.use("/customers", customerRouter);
+
+var mailsRouter = require("./routes/mails"); // Route test
+app.use("/mails", mailsRouter);
+
+var bookingsRouter = require("./routes/bookings");
+app.use("/bookings", bookingsRouter);
 
 module.exports = app;

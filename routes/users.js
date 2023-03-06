@@ -2,6 +2,7 @@ var express = require("express");
 var router = express.Router();
 
 const User = require("../models/users");
+const Restaurant = require("../models/restaurants");
 
 const uid2 = require("uid2");
 const bcrypt = require("bcrypt");
@@ -29,12 +30,6 @@ router.post("/upload", async (req, res) => {
     res.json({ result: false, error: resultMove });
   }
 });
-
-/* -------------------------------------------------------------------------- */
-/*                        Générer mot de passe sécurisé                       */
-/* -------------------------------------------------------------------------- */
-
-// router.post("")
 
 /* -------------------------------------------------------------------------- */
 /*                                   Signup                                   */
@@ -110,12 +105,7 @@ router.post("/signup", function (req, res) {
         picture: "",
         studentCard,
         bio: "",
-        creditCard: {
-          name: "",
-          number: null,
-          expirationDate: null, // format: MM/YY
-          cvc: null,
-        },
+        stripeId: "",
         likes: [],
         history: [],
       });
@@ -173,9 +163,11 @@ router.post("/signin", function (req, res) {
 router.get("/:token", function (req, res) {
   const { token } = req.params;
 
-  User.findOne({ token }).then((data) => {
-    res.json({ result: true, user: data });
-  });
+  User.findOne({ token })
+    .populate("likes")
+    .then((data) => {
+      res.json({ result: true, user: data });
+    });
 });
 
 /* -------------------------------------------------------------------------- */
@@ -218,6 +210,33 @@ router.put("/:token", async (req, res) => {
     });
   } else {
     await User.findOneAndUpdate(token, update);
+    res.json({ result: true });
+  }
+});
+
+/* -------------------------------------------------------------------------- */
+/*                        Add a restaurant to favorites                       */
+/* -------------------------------------------------------------------------- */
+
+router.put("/like/:token", async (req, res) => {
+  const { token } = req.params;
+  console.log(token);
+  const userResponse = await User.findOne({ token });
+  const userLikeArray = userResponse.likes;
+  const restaurantToken = req.body.token;
+  const restaurantResponse = await Restaurant.findOne({
+    token: restaurantToken,
+  });
+  const restaurantId = restaurantResponse._id.valueOf();
+  if (userLikeArray.includes(restaurantId)) {
+    return;
+    //User already liked the restaurant
+    //userLikeArray = userLikeArray.filter((e) => e !== restaurantId);
+  } else {
+    // User has not liked the restaurant
+    await userLikeArray.push(restaurantId); //Add restaurant ID to likes
+    const update = { likes: userLikeArray };
+    await User.findOneAndUpdate({ token }, update);
     res.json({ result: true });
   }
 });

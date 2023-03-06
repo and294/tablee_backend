@@ -14,12 +14,25 @@
     "dotenv": "^16.0.3",
     "express": "~4.16.1",
     "express-fileupload": "^1.4.0",
+    "express-session": "^1.17.3",
+    "express-validator": "^6.15.0",
+    "generator-virtual-time": "^1.0.3",
+    "googleapis": "^112.0.0",
+    "html-to-text": "^9.0.4",
     "moment": "^2.29.4",
+    "moment-range": "^4.0.2",
     "mongoose": "^6.9.3",
     "morgan": "~1.9.1",
     "node-fetch": "2",
+    "nodemailer": "^6.9.1",
     "nodemon": "^2.0.20",
+<<<<<<< HEAD
     "socket.io": "^4.6.1",
+=======
+    "req-flash": "^0.0.3",
+    "stripe": "^11.12.0",
+    "time-slot-generator": "^1.0.1",
+>>>>>>> bc5c7b8849c78ce41ab9cce1680c6e6889bd7428
     "uid2": "^1.0.0",
     "uniqid": "^5.4.0"
   },
