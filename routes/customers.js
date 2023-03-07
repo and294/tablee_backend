@@ -11,11 +11,11 @@ router.post("/new/:token", async function (req, res) {
     const {token} = req.params;
     const user = await User.findOne({token});
     // Return false if the user is already in Stripe => should have a Stripe ID attached to his profile in the DB
-    if (user.stripeId.length === 0) return res.json({result: false});
+    if (user.stripeId.length > 0) return res.json({result: false});
     // Save the customer to Stripe
     const {phone} = req.body;
     const customer = await stripe.customers.create({
-      name: user.name,
+      name: `${user.firstname} ${user.lastname}`,
       email: user.email,
       phone,
       description: `Database ID: ${user._id.valueOf()}` // User ID from mongoDB

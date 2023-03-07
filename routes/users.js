@@ -38,10 +38,10 @@ router.post("/upload", async (req, res) => {
 /* -------------------------------------------------------------------------- */
 
 router.post("/signup", function (req, res) {
-  const {username, firstname, email, password, studentCard} = req.body;
+  const {username, firstname, lastname, email, password, studentCard} = req.body;
 
   // Check if any of the fields is empty or null
-  if (!checkBody([username, firstname, email, password])) {
+  if (!checkBody([username, firstname, lastname, email, password])) {
     return res.json({
       result: false,
       errorSrc: "field",
@@ -98,6 +98,7 @@ router.post("/signup", function (req, res) {
       const newUser = new User({
         username,
         firstname,
+        lastname,
         email,
         password: hash,
         token: uid2(32),

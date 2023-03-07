@@ -3,12 +3,12 @@ const router = express.Router();
 const Stripe = require("stripe");
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 const User = require("../models/users");
-const Restaurant = require("../models/restaurants");
 const moment = require("moment");
 const nodemailer = require("nodemailer");
+const Booking = require("../models/bookings");
 
 // Enregistrement de la carte de crédit
-router.post("/new/:token", async function (req, res) {
+router.post("/save/:token", async function (req, res) {
   try {
     // Retrieve the user data from the DB using the token in params
     const {token} = req.params;
@@ -16,7 +16,7 @@ router.post("/new/:token", async function (req, res) {
     // Retrieve the card details from the body
     const {name, number, exp_month, exp_year, cvc} = req.body;
     // Create a card token using Stripe API
-    const cardToken = await stripe.tokens.create({name, number, exp_month, exp_year, cvc});
+    const cardToken = await stripe.tokens.create({card: name, number, exp_month, exp_year, cvc});
     // Update the correct user in stripe using his Stripe ID retrieved from the DB and the card token generated
     await stripe.customers.update(user.stripeId, {source: cardToken.id});
     // Return True if successful
@@ -26,31 +26,26 @@ router.post("/new/:token", async function (req, res) {
   }
 });
 
-/* -------------------------------------------------------------------------- */
-/*                                  Paiement                                  */
-/* -------------------------------------------------------------------------- */
-
+// Charger la carte
 router.post("/charge/:token", async function (req, res) {
   try {
-    // Retrieve the user data from the DB using the token in params
-    const {token} = req.params;
-    const user = await User.findOne({token});
-    // Retrieve and adjust the parameters from the body
-    const {isoDate, restaurantToken} = req.body;
-    const date = moment(isoDate).locale("fr").format("LL"); // En ISO ( 2023-02-11T12:00:00+0000 )
-    let {chargeableAmount} = req.body;
-    chargeableAmount *= 100;
-    // Recherche du restaurant et de l'utilisateur dans MongoDB par leur token
-    const restaurant = await Restaurant.findOne({token: restaurantToken});
+    // Retrieve the reservation details from the body
+    const {bookingId} = req.params;
+    const booking = await Booking.findById(bookingId).populate(["booker", "restaurant"]);
+    const user = booking.booker;
+    const restaurant = booking.restaurant;
+    // Retrieve the chargeable amount from the Body
+    const {chargeableAmount} = req.body;
+    const bookingDate = new Date(booking.initialData.start).toISOString();
     // Recherche de l'utilisateur dans Stripe avec son Stripe ID
     const customer = await stripe.customers.retrieve(user.stripeId);
     // Création de la charge sur la CC déjà enregistrée par le client
     const charge = await stripe.charges.create({
       customer: user.stripeId,
       receipt_email: customer.email,
-      amount: chargeableAmount,
+      amount: chargeableAmount * 100,
       currency: "eur",
-      description: `Repas du ${date} chez ${restaurant.name}`
+      description: `Repas du ${moment(bookingDate).locale("fr").format("LL")} chez ${restaurant.name}`
     });
     // Création du transporteur de mail avec Nodemailer
     const transporter = nodemailer.createTransport({
@@ -61,7 +56,6 @@ router.post("/charge/:token", async function (req, res) {
         pass: process.env.NODEMAILER_PASSWORD
       }
     });
-
     // Création et envoi de l'email avec Nodemailer
     await transporter.sendMail({
       from: `"Tablée" <${process.env.NODEMAILER_EMAIL}>`, // sender address
@@ -231,7 +225,6 @@ router.post("/charge/:token", async function (req, res) {
       
       `
     });
-
     // Envoi de la réponse au client affichant un popup avec le message de confirmation
     res.json({
       result: true,
@@ -239,7 +232,7 @@ router.post("/charge/:token", async function (req, res) {
         "Paiement effectué avec succès ! Un email de confirmation t'a été envoyé par email."
     });
   } catch (error) {
-    res.json(error);
+    console.log(error);
   }
 });
 

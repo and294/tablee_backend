@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const userSchema = mongoose.Schema({
   username: String,
   firstname: String,
+  lastname: String,
   email: String,
   password: String,
   token: String,
@@ -10,8 +11,8 @@ const userSchema = mongoose.Schema({
   studentCard: String,
   bio: String,
   stripeId: String,
-  likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "restaurants" }],
-  history: [{ type: mongoose.Schema.Types.ObjectId, ref: "bookings" }],
+  likes: [{type: mongoose.Schema.Types.ObjectId, ref: "restaurants"}],
+  history: [{type: mongoose.Schema.Types.ObjectId, ref: "bookings"}]
 });
 
 const User = mongoose.model("users", userSchema);
