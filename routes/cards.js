@@ -16,7 +16,7 @@ router.post("/save/:token", async function (req, res) {
     // Retrieve the card details from the body
     const {name, number, exp_month, exp_year, cvc} = req.body;
     // Create a card token using Stripe API
-    const cardToken = await stripe.tokens.create({card: name, number, exp_month, exp_year, cvc});
+    const cardToken = await stripe.tokens.create({card: {name, number, exp_month, exp_year, cvc}});
     // Update the correct user in stripe using his Stripe ID retrieved from the DB and the card token generated
     await stripe.customers.update(user.stripeId, {source: cardToken.id});
     // Return True if successful
@@ -27,7 +27,7 @@ router.post("/save/:token", async function (req, res) {
 });
 
 // Charger la carte
-router.post("/charge/:token", async function (req, res) {
+router.post("/pay/:bookingId", async function (req, res) {
   try {
     // Retrieve the reservation details from the body
     const {bookingId} = req.params;

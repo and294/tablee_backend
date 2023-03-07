@@ -6,7 +6,8 @@ const bookingSchema = mongoose.Schema({
   date: String,
   specialRequests: String,
   restaurant: {type: mongoose.Schema.Types.ObjectId, ref: "restaurants"},
-  initialData: Object
+  initialData: Object,
+  paid: Boolean
 });
 
 const Booking = mongoose.model("bookings", bookingSchema);
