@@ -1,74 +1,61 @@
 const express = require("express");
 const router = express.Router();
-const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+const Stripe = require("stripe");
+const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 const User = require("../models/users");
-const Restaurant = require("../models/restaurants");
 const moment = require("moment");
 const nodemailer = require("nodemailer");
+const Booking = require("../models/bookings");
 
-/* -------------------------------------------------------------------------- */
-/*              Enregistrement de la carte de crédit dans Stripe              */
-/* -------------------------------------------------------------------------- */
-
-router.post("/new/:token", async function (req, res) {
+// Enregistrement de la carte de crédit
+router.post("/save/:token", async function (req, res) {
   try {
-    const { token } = req.params;
-    const { name, number, exp_month, exp_year, cvc } = req.body;
-    const card = { name, number, exp_month, exp_year, cvc };
-    const cardToken = await stripe.tokens.create({ card });
-    const tokenId = cardToken.id;
-    const cardId = cardToken.card.id;
-    const user = await User.findOne({ token });
-    const { stripeId } = user;
-    const customer = await stripe.customers.update(stripeId, {
-      source: tokenId,
-    });
-    res.json({ result: true, tokenId, cardId, customer });
+    // Retrieve the user data from the DB using the token in params
+    const {token} = req.params;
+    const user = await User.findOne({token});
+    // Retrieve the card details from the body
+    const {name, number, exp_month, exp_year, cvc} = req.body;
+    // Create a card token using Stripe API
+    const cardToken = await stripe.tokens.create({card: name, number, exp_month, exp_year, cvc});
+    // Update the correct user in stripe using his Stripe ID retrieved from the DB and the card token generated
+    await stripe.customers.update(user.stripeId, {source: cardToken.id});
+    // Return True if successful
+    res.json({result: true});
   } catch (error) {
-    res.json(error);
+    console.log(error);
   }
 });
 
-/* -------------------------------------------------------------------------- */
-/*                                  Paiement                                  */
-/* -------------------------------------------------------------------------- */
-
+// Charger la carte
 router.post("/charge/:token", async function (req, res) {
   try {
-    // On récupère les paramètres de la requête
-    const { token } = req.params;
-    const { meal } = req.body; // Petit Déjeuner / Déjeuner / Afternoon Tea / Dîner
-    const { isoDate, restaurantToken } = req.body;
-    let { chargeableAmount } = req.body; // montant x 100 (ie. 2000 === 20.00 €)
-    const date = moment(isoDate).locale("fr").format("LL"); // En ISO ( 2023-02-11T12:00:00+0000 )
-    parseInt((chargeableAmount *= 100));
-
-    // Recherche du restaurant et de l'utilisateur dans MongoDB par leur token
-    const restaurant = await Restaurant.findOne({ token: restaurantToken });
-    const user = await User.findOne({ token });
-
-    // Recherche de l'utisateur dans Stripe avec son Stripe ID
+    // Retrieve the reservation details from the body
+    const {bookingId} = req.params;
+    const booking = await Booking.findById(bookingId).populate(["booker", "restaurant"]);
+    const user = booking.booker;
+    const restaurant = booking.restaurant;
+    // Retrieve the chargeable amount from the Body
+    const {chargeableAmount} = req.body;
+    const bookingDate = new Date(booking.initialData.start).toISOString();
+    // Recherche de l'utilisateur dans Stripe avec son Stripe ID
     const customer = await stripe.customers.retrieve(user.stripeId);
-
     // Création de la charge sur la CC déjà enregistrée par le client
     const charge = await stripe.charges.create({
       customer: user.stripeId,
       receipt_email: customer.email,
-      amount: chargeableAmount,
+      amount: chargeableAmount * 100,
       currency: "eur",
-      description: `${meal} du ${date} chez ${restaurant.name}`,
+      description: `Repas du ${moment(bookingDate).locale("fr").format("LL")} chez ${restaurant.name}`
     });
-
     // Création du transporteur de mail avec Nodemailer
     const transporter = nodemailer.createTransport({
       host: "smtp.gmail.com",
       auth: {
         type: "login", // default
         user: process.env.NODEMAILER_EMAIL,
-        pass: process.env.NODEMAILER_PASSWORD,
-      },
+        pass: process.env.NODEMAILER_PASSWORD
+      }
     });
-
     // Création et envoi de l'email avec Nodemailer
     await transporter.sendMail({
       from: `"Tablée" <${process.env.NODEMAILER_EMAIL}>`, // sender address
@@ -76,7 +63,7 @@ router.post("/charge/:token", async function (req, res) {
       subject: "Confirmation de paiement",
       html: `
       <!DOCTYPE html>
-      <html>
+      <html lang="fr">
         <head>
           <meta charset="utf-8" />
           <meta name="viewport" content="width=device-width" />
@@ -95,10 +82,6 @@ router.post("/charge/:token", async function (req, res) {
           "
         >
           <table
-            align="center"
-            margin="20"
-            cellpadding="0"
-            cellspacing="0"
             style="
               background-color: #1d2c3b;
               max-width: 320px;
@@ -106,6 +89,7 @@ router.post("/charge/:token", async function (req, res) {
               padding-left: 20px;
               padding-right: 20px;
               border-radius: 10px;
+              margin: 20px auto;
             "
           >
             <tr>
@@ -117,7 +101,7 @@ router.post("/charge/:token", async function (req, res) {
                     max-width: 100px;
                     margin-top: 20px;
                     border-radius: 10px;
-                    border: #cdab82 0.5px solid;
+                    border: #cdab82 1px solid;
                   "
                 />
               </td>
@@ -239,17 +223,16 @@ router.post("/charge/:token", async function (req, res) {
         </body>
       </html>
       
-      `,
+      `
     });
-
     // Envoi de la réponse au client affichant un popup avec le message de confirmation
     res.json({
       result: true,
       message:
-        "Paiement effectué avec succès ! Un email de confirmation t'a été envoyé par email.",
+        "Paiement effectué avec succès ! Un email de confirmation t'a été envoyé par email."
     });
   } catch (error) {
-    res.json(error);
+    console.log(error);
   }
 });
 
