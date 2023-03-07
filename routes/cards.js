@@ -10,20 +10,19 @@ const nodemailer = require("nodemailer");
 // Enregistrement de la carte de crédit
 router.post("/new/:token", async function (req, res) {
   try {
+    // Retrieve the user data from the DB using the token in params
     const {token} = req.params;
-    const {name, number, exp_month, exp_year, cvc} = req.body;
-    const card = {name, number, exp_month, exp_year, cvc};
-    const cardToken = await stripe.tokens.create({card});
-    const tokenId = cardToken.id;
-    const cardId = cardToken.card.id;
     const user = await User.findOne({token});
-    const {stripeId} = user;
-    const customer = await stripe.customers.update(stripeId, {
-      source: tokenId
-    });
-    res.json({result: true, tokenId, cardId, customer});
+    // Retrieve the card details from the body
+    const {name, number, exp_month, exp_year, cvc} = req.body;
+    // Create a card token using Stripe API
+    const cardToken = await stripe.tokens.create({name, number, exp_month, exp_year, cvc});
+    // Update the correct user in stripe using his Stripe ID retrieved from the DB and the card token generated
+    await stripe.customers.update(user.stripeId, {source: cardToken.id});
+    // Return True if successful
+    res.json({result: true});
   } catch (error) {
-    res.json(error);
+    console.log(error);
   }
 });
 
@@ -33,30 +32,26 @@ router.post("/new/:token", async function (req, res) {
 
 router.post("/charge/:token", async function (req, res) {
   try {
-    // On récupère les paramètres de la requête
+    // Retrieve the user data from the DB using the token in params
     const {token} = req.params;
-    const {meal} = req.body; // Petit Déjeuner / Déjeuner / Afternoon Tea / Dîner
+    const user = await User.findOne({token});
+    // Retrieve and adjust the parameters from the body
     const {isoDate, restaurantToken} = req.body;
-    let {chargeableAmount} = req.body; // montant x 100 (ie. 2000 === 20.00 €)
     const date = moment(isoDate).locale("fr").format("LL"); // En ISO ( 2023-02-11T12:00:00+0000 )
+    let {chargeableAmount} = req.body;
     chargeableAmount *= 100;
-
     // Recherche du restaurant et de l'utilisateur dans MongoDB par leur token
     const restaurant = await Restaurant.findOne({token: restaurantToken});
-    const user = await User.findOne({token});
-
     // Recherche de l'utilisateur dans Stripe avec son Stripe ID
     const customer = await stripe.customers.retrieve(user.stripeId);
-
     // Création de la charge sur la CC déjà enregistrée par le client
     const charge = await stripe.charges.create({
       customer: user.stripeId,
       receipt_email: customer.email,
       amount: chargeableAmount,
       currency: "eur",
-      description: `${meal} du ${date} chez ${restaurant.name}`
+      description: `Repas du ${date} chez ${restaurant.name}`
     });
-
     // Création du transporteur de mail avec Nodemailer
     const transporter = nodemailer.createTransport({
       host: "smtp.gmail.com",
