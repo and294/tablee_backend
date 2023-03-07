@@ -28,7 +28,8 @@ router.post("/new/:token", async (req, res) => {
       date,
       specialRequests,
       restaurant: restaurant._id.valueOf(),
-      initialData: timeSlot
+      initialData: timeSlot,
+      paid: false
     });
     await newBooking.save();
     // Update the revised timeslots of the restaurant, taking into account the one just allocated
