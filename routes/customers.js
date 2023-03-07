@@ -1,44 +1,40 @@
 const express = require("express");
 const router = express.Router();
-const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+const Stripe = require("stripe");
+const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 const User = require("../models/users");
 
-/* -------------------------------------------------------------------------- */
-/*                              Create a customer                             */
-/* -------------------------------------------------------------------------- */
-
+// Create a new customer in Stripe
 router.post("/new/:token", async function (req, res) {
   try {
-    const {token} = req.params; // to communicate with MongoDB from frontend
-    const {phone} = req.body; // basic information
+    // Retrieve the user information from the DB using the user token in params
+    const {token} = req.params;
     const user = await User.findOne({token});
-    const databaseId = user._id.valueOf(); // stringified version of the object ID
+    // Return false if the user is already in Stripe => should have a Stripe ID attached to his profile in the DB
+    if (user.stripeId.length === 0) return res.json({result: false});
+    // Save the customer to Stripe
+    const {phone} = req.body;
     const customer = await stripe.customers.create({
       name: user.name,
       email: user.email,
       phone,
-      description: databaseId // User ID from mongoDB
+      description: `Database ID: ${user._id.valueOf()}` // User ID from mongoDB
     });
+    // Stripe will return an ID => update the user collection with that ID
     await User.updateOne({token}, {stripeId: customer.id});
-    res.json({result: true, customer});
+    // Return True is all is valid
+    res.json({result: true});
   } catch (error) {
-    res.json({result: false, error});
+    console.log(error);
   }
 });
 
-/* -------------------------------------------------------------------------- */
-/*                               Find a customer                              */
-/* -------------------------------------------------------------------------- */
-
+// Find a customer in Stripe
 router.get("/:token", async function (req, res) {
   try {
     const {token} = req.params;
     const user = await User.findOne({token});
-    if (!user)
-      return res.json({
-        result: false,
-        error: "No user found with this token"
-      });
+    if (!user) return res.json({result: false, error: "No user found"});
     const {stripeId} = user;
     const customer = await stripe.customers.retrieve(stripeId);
     res.json({result: true, customer});
