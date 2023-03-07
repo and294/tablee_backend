@@ -3,11 +3,12 @@ const router = express.Router();
 const User = require("../models/users");
 const Restaurant = require("../models/restaurants");
 const Booking = require("../models/bookings");
+const moment = require("moment/moment");
 
 // Create new booking:
 router.post("/new/:token", async (req, res) => {
   let history = [];
-  let newTimeSlotArray = [];
+  // let newTimeSlotArray = [];
   try {
     // Retrieve the user's data from the token in parameters
     const {token} = req.params;
@@ -17,7 +18,9 @@ router.post("/new/:token", async (req, res) => {
     // Retrieve the restaurant's data from the DB
     const restaurant = await Restaurant.findOne({token: restaurantToken});
     // Find the selected timeslot from the timeSlot key
-    const timeSlot = await restaurant.timeSlots.find(slot => slot.start === date);
+    const timeSlot = restaurant.timeSlots.find((slot) => slot.start === date);
+    // Return False if no timeslot has been found
+    if (!timeSlot) return res.json({result: false, error: "Pas de créneau disponible !"});
     // Create and push the new booking with all the correct information to the Bookings collection
     const newBooking = await new Booking({
       booker: user._id.valueOf(),
@@ -25,11 +28,12 @@ router.post("/new/:token", async (req, res) => {
       date,
       specialRequests,
       restaurant: restaurant._id.valueOf(),
-      initialData: timeSlot
+      initialData: timeSlot,
+      paid: false
     });
     await newBooking.save();
     // Update the revised timeslots of the restaurant, taking into account the one just allocated
-    for (const slot of restaurant.timeSlots) if (slot.start !== date) newTimeSlotArray.push(slot);
+    const newTimeSlotArray = restaurant.timeSlots.filter((slot) => slot.start !== date);
     await Restaurant.findOneAndUpdate({token: restaurantToken}, {timeSlots: newTimeSlotArray});
     // Update the User's history by adding the booking's id
     history = user.history;
@@ -105,6 +109,38 @@ router.get("/:bookingId", async (req, res) => {
   } catch (error) {
     console.log(error);
   }
+});
+
+// Get a user's history
+router.get("/history/:token", async (req, res) => {
+  // Retrieve user's data from the DB using the token in the params
+  const {token} = req.params;
+  const user = await User.findOne({token}).populate("history");
+  // Return False if no booking is found
+  if (user.history.length === 0) return res.json({result: false, error: "Pas de réservation 🫣"});
+  // Filter the history with pas bookings
+  const today = moment();
+  const history = user.history.filter(booking => moment(booking.date) < today);
+  // Return False if no booking happened
+  if (history.length === 0) return res.json({result: false, error: "Pas de réservation passée 🫠"});
+  // Return True + History if successful
+  res.json({result: true, history});
+});
+
+// Get a user's upcoming bookings
+router.get("/upcoming/:token", async (req, res) => {
+  // Retrieve user's data from the DB using the token in the params
+  const {token} = req.params;
+  const user = await User.findOne({token}).populate("history");
+  // Return False if no booking is found
+  if (user.history.length === 0) return res.json({result: false, error: "Pas de réservation 🫣"});
+  // Filter the history with pas bookings
+  const today = moment();
+  const upcoming = user.history.filter(booking => moment(booking.date) > today);
+  // Return False if no booking happened
+  if (upcoming.length === 0) return res.json({result: false, error: "Pas de réservation à venir 🫠"});
+  // Return True + History if successful
+  res.json({result: true, upcoming});
 });
 
 module.exports = router;
