@@ -27,29 +27,24 @@ var server = http.createServer(app);
 
 const generateID = () => Math.random().toString(36).substring(2, 10);
 
-let chatRooms = [
-  /*{
-      id: generateID(),
-      name: "Novu Hangouts",
-      messages: [
-          {
-              id: generateID(),
-              text: "Hello guys, welcome!",
-              time: "07:50",
-              user: "Tomer",
-          },]}*/
-];
 
 var io = require("socket.io")(server);
 io.on("connection", function (socket) {
+
+
   //Message de connection d'un utilisateur
   console.log(`⚡: ${socket.id} user just connected!`);
-
   //Message de déconnection d'un utilisateur
   socket.on("disconnect", () => {
     socket.disconnect();
     console.log("🔥: A user disconnected");
   });
+
+
+  socket.on("sendMessage", function (message) {
+    console.log(message);
+  });
+
 
   //Creation de nouveau chat
   socket.on("createRoom", (groupName) => {
@@ -66,14 +61,13 @@ io.on("connection", function (socket) {
     });
 
 
-    
-    io.emit("sendMessageFromBack", "New user connected");
-
     socket.on("newMessage", (data) => {
-      const { room_id, message, user, timestamp } = data;
+      console.log(data)
+      //const { room_id, message, user, timestamp } = data;
+      socket.emit("sendMessageFromBack", data);
 
       //Trouve la conversation dans laquelle le message à été envoyé
-      let result = chatRooms.filter((room) => room.id == room_id);
+
 
     //Structure d'un message
       const newMessage = {
@@ -82,19 +76,10 @@ io.on("connection", function (socket) {
         user,
         time: `${timestamp.hour}:${timestamp.mins}`,
       };
-      //met à jour les message du chat concerné
-      socket.to(result[0].name).emit("roomMessage", newMessage);
-      ChatRoom.messages.updateOne({ $push: { message: newMessage } });
 
-      //Trigger pour afficher les changements
-      socket.emit("roomsList", chatRooms);
-      socket.emit("foundRoom", result[0].messages);
     });
   });
-  /*
-app.get("/api", (req, res) => {
-  res.json(chatRooms);
-});*/
+  
 });
 
 /**
