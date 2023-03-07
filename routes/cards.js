@@ -40,6 +40,7 @@ router.post("/pay/:bookingId", async function (req, res) {
     // Recherche de l'utilisateur dans Stripe avec son Stripe ID
     const customer = await stripe.customers.retrieve(user.stripeId);
     // Création de la charge sur la CC déjà enregistrée par le client
+
     const charge = await stripe.charges.create({
       customer: user.stripeId,
       receipt_email: customer.email,
@@ -47,6 +48,8 @@ router.post("/pay/:bookingId", async function (req, res) {
       currency: "eur",
       description: `Repas du ${moment(bookingDate).locale("fr").format("LL")} chez ${restaurant.name}`
     });
+    // Update la BDD:
+    await Booking.findByIdAndUpdate(bookingId, {paid: true});
     // Création du transporteur de mail avec Nodemailer
     const transporter = nodemailer.createTransport({
       host: "smtp.gmail.com",
@@ -222,7 +225,7 @@ router.post("/pay/:bookingId", async function (req, res) {
           </table>
         </body>
       </html>
-      
+
       `
     });
     // Envoi de la réponse au client affichant un popup avec le message de confirmation
