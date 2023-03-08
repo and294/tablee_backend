@@ -40,7 +40,6 @@ router.post("/pay/:bookingId", async function (req, res) {
     // Recherche de l'utilisateur dans Stripe avec son Stripe ID
     const customer = await stripe.customers.retrieve(user.stripeId);
     // Création de la charge sur la CC déjà enregistrée par le client
-
     const charge = await stripe.charges.create({
       customer: user.stripeId,
       receipt_email: customer.email,
@@ -232,7 +231,7 @@ router.post("/pay/:bookingId", async function (req, res) {
     res.json({
       result: true,
       message:
-        "Paiement effectué avec succès ! Un email de confirmation t'a été envoyé par email."
+        "Un email de confirmation t'a été envoyé par email !"
     });
   } catch (error) {
     console.log(error);

@@ -4,7 +4,7 @@ const chatRoomSchema = mongoose.Schema({
   sender: { type: mongoose.Schema.Types.ObjectId, ref: "users" },
   id: String,
   name: String,
-  messages: [String],
+  messages: [],
 });
 
 const ChatRoom = mongoose.model("messages", chatRoomSchema);
