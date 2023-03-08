@@ -4,21 +4,21 @@ const addressSchema = mongoose.Schema({
   streetNumber: Number,
   streetName: String,
   postCode: Number,
-  city: String,
+  city: String
 });
 
 const menuItemsSchema = mongoose.Schema({
   name: String,
   price: Number,
-  description: String,
+  description: String
 });
 
 const reviewsSchema = mongoose.Schema({
-  writer: { type: mongoose.Schema.Types.ObjectId, ref: "users" },
-  date: Date,
+  writer: String, // Username
+  date: String,
   description: String,
-  upVotedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: "users" }],
-  downVotedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: "users" }],
+  upVotedBy: [String], // User Id
+  downVotedBy: [String]
 });
 
 const restaurantSchema = mongoose.Schema({
@@ -35,7 +35,7 @@ const restaurantSchema = mongoose.Schema({
   perks: [String],
   reviews: [reviewsSchema],
   availabilities: [String],
-  timeSlots: [Object],
+  timeSlots: [Object]
 });
 
 const Restaurant = mongoose.model("restaurants", restaurantSchema);
