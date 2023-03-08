@@ -6,7 +6,10 @@ const {generateSlots} = require("../modules/slots");
 const uid2 = require("uid2");
 
 const Restaurant = require("../models/restaurants");
+const Booking = require("../models/bookings");
 const fetch = require("node-fetch");
+const moment = require("moment");
+const User = require("../models/users");
 
 //* add new Restaurant
 router.post("/", (req, res) => {
@@ -116,27 +119,70 @@ router.put("/:token", async function (req, res) {
 /* -------------------------------------------------------------------------- */
 /*            Route pour ajouter les reviews aux restos déjà en BDD            */
 /* -------------------------------------------------------------------------- */
-router.post("/reviews/:token", async (req, res) => {
-  const { token } = req.params;
-  const {description} = req.body;
-  const restaurantResponse = await Restaurant.findOne({ token });
-  const reviewsArray = restaurantResponse.reviews;
-  const userToken = req.body.token;
-  const userResponse = await User.findOne({
-    token: userToken
-  });
-  const userId = userResponse._id.valueOf();
-  const review = {
-    writer: userId,
-    description,
+router.post("/reviews/:bookingId", async function (req, res) {
+  const {bookingId} = req.params;
+  const booking = await Booking.findById(bookingId).populate(["booker", "restaurant"]);
+  const {review} = req.body;
+  const bookerUsername = booking.booker.username;
+  const bookingDate = moment(booking.date).format("DD/MM/YYYY");
+  const restaurantId = booking.restaurant._id.valueOf();
+  const reviewSchema = {
+    writer: bookerUsername,
+    date: bookingDate,
+    description: review,
     upVotedBy: [],
     downVotedBy: []
+  };
+  const restaurant = await Restaurant.findById(restaurantId);
+  const reviewArr = restaurant.reviews;
+  reviewArr.push(reviewSchema);
+  await Restaurant.findByIdAndUpdate(restaurantId, {reviews: reviewArr});
+  res.json({result: true, reviewId: reviewArr[reviewArr.length - 1]._id.valueOf()});
+});
+
+// Get all reviews
+router.get("/reviews/:token", async function (req, res) {
+  const {token} = req.params;
+  const restaurant = await Restaurant.findOne({token});
+  const reviews = restaurant.reviews;
+  res.json({result: true, allReviews: reviews});
+});
+
+// Upvote:
+router.post("/upVote/:token/:reviewId", async function (req, res) {
+  const {token, reviewId} = req.params;
+  const {restaurantToken} = req.body;
+  const user = await User.findOne({token});
+  const restaurant = await Restaurant.findOne({token: restaurantToken});
+  const reviews = restaurant.reviews;
+  const targetReview = reviews.find((review) => review._id.valueOf() === reviewId);
+  if (!targetReview.upVotedBy.includes(user._id.valueOf())) {
+    targetReview.upVotedBy.push(user._id.valueOf());
   }
-    await reviewsArray.push(review);
-    const update = { reviews: reviewsArray };
-    await Restaurant.findOneAndUpdate({ token }, update);
-    res.json({ result: true });
+  if (targetReview.downVotedBy.includes(user._id.valueOf())) {
+    targetReview.downVotedBy.splice(targetReview.downVotedBy.indexOf(user._id.valueOf()), 1);
   }
-);
+  await restaurant.save();
+  res.json({result: true, targetReview});
+});
+
+// Upvote:
+router.post("/downVote/:token/:reviewId", async function (req, res) {
+  const {token, reviewId} = req.params;
+  const {restaurantToken} = req.body;
+  const user = await User.findOne({token});
+  const restaurant = await Restaurant.findOne({token: restaurantToken});
+  const reviews = restaurant.reviews;
+  const targetReview = reviews.find((review) => review._id.valueOf() === reviewId);
+  if (!targetReview.downVotedBy.includes(user._id.valueOf())) {
+    targetReview.downVotedBy.push(user._id.valueOf());
+  }
+  if (targetReview.upVotedBy.includes(user._id.valueOf())) {
+    targetReview.upVotedBy.splice(targetReview.upVotedBy.indexOf(user._id.valueOf()), 1);
+  }
+  await restaurant.save();
+  res.json({result: true, targetReview});
+});
+
 // Route export :
 module.exports = router;
