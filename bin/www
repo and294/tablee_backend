@@ -40,9 +40,10 @@ io.on("connection", function (socket) {
     console.log("🔥: A user disconnected");
   });
 
-
+//Reception d'un message du frontend
   socket.on("sendMessage", function (message) {
     console.log(message);
+    socket.emit("sendMessageFromBack", message);
   });
 
 
@@ -62,21 +63,17 @@ io.on("connection", function (socket) {
 
 
     socket.on("newMessage", (data) => {
-      console.log(data)
-      //const { room_id, message, user, timestamp } = data;
+      console.log(data);
       socket.emit("sendMessageFromBack", data);
 
-      //Trouve la conversation dans laquelle le message à été envoyé
 
-
-    //Structure d'un message
+      //Structure d'un message
       const newMessage = {
         id: generateID(),
         text: message,
         user,
         time: `${timestamp.hour}:${timestamp.mins}`,
       };
-
     });
   });
   

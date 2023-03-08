@@ -1,6 +1,7 @@
 var express = require("express");
 const ChatRoom = require("../models/chatRoom");
-const Message = require("../models/messagesToSend");
+
+const User = require("../models/users");
 var router = express.Router();
 
 // recupère les conversations de l'utilisateur
@@ -16,9 +17,9 @@ router.get("/rooms", (req, res) => {
 })
 
 // création d'une nouvelle conversation
-router.post("/newRoom", (req, res) => {
+/*router.post("/newRoom", (req, res) => {
     const {id, name} = req.body
-    ChatRoom.findOne({id: id})
+               ChatRoom.findOne({id: id})
     .then(data => {
        if(data) {
         res.json({error: 'ChatRoom already exists'})
@@ -32,8 +33,8 @@ router.post("/newRoom", (req, res) => {
             res.json({rooms: data})
         })
        }
-    })
-})
+    }) 
+})*/
 
 //Envoi de message
 router.post('/send', (req, res) => {
