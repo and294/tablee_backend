@@ -222,15 +222,13 @@ router.post("/like/:token", async (req, res) => {
   const user = await User.findOne({token});
   const {restaurantToken} = req.body;
   const restaurantResponse = await Restaurant.findOne({token: restaurantToken});
-  const restaurantId = restaurantResponse._id;
   //User already liked the restaurant
-  if (user.likes.find((restaurant) => restaurant._id.valueOf() === restaurantId.valueOf())) {
-    user.likes.splice(user.likes.indexOf(restaurantId.valueOf(), 1));
-    console.log(user.likes);
+  if (user.likes.includes(restaurantResponse._id.valueOf())) {
+    user.likes.splice(user.likes.indexOf(restaurantResponse._id.valueOf()), 1);
     await user.save();
     res.json({result: false});
   } else {
-    user.likes.push(restaurantId);
+    user.likes.push(restaurantResponse._id);
     await user.save();
     res.json({result: true});
   } //Add restaurant ID to likes
