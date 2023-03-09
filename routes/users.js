@@ -217,24 +217,37 @@ router.put("/:token", async (req, res) => {
 /*                        Add a restaurant to favorites                       */
 /* -------------------------------------------------------------------------- */
 
-router.put("/like/:token", async (req, res) => {
+router.post("/like/:token", async (req, res) => {
   const {token} = req.params;
-  console.log(token);
-  const userResponse = await User.findOne({token});
-  const userLikeArray = userResponse.likes;
-  const restaurantToken = req.body.token;
-  const restaurantResponse = await Restaurant.findOne({
-    token: restaurantToken
-  });
-  const restaurantId = restaurantResponse._id.valueOf();
-  if (userLikeArray.includes(restaurantId)) return;
+  const user = await User.findOne({token});
+  const {restaurantToken} = req.body;
+  const restaurantResponse = await Restaurant.findOne({token: restaurantToken});
+  const restaurantId = restaurantResponse._id;
   //User already liked the restaurant
-  //userLikeArray = userLikeArray.filter((e) => e !== restaurantId);
-  // User has not liked the restaurant
-  userLikeArray.push(restaurantId); //Add restaurant ID to likes
-  const update = {likes: userLikeArray};
-  await User.findOneAndUpdate({token}, update);
-  res.json({result: true});
+  if (user.likes.find((restaurant) => restaurant._id.valueOf() === restaurantId.valueOf())) {
+    user.likes.splice(user.likes.indexOf(restaurantId.valueOf(), 1));
+    console.log(user.likes);
+    await user.save();
+    res.json({result: false});
+  } else {
+    user.likes.push(restaurantId);
+    await user.save();
+    res.json({result: true});
+  } //Add restaurant ID to likes
+
+});
+
+router.get("/:token/:restaurantToken", async (req, res) => {
+  const {token, restaurantToken} = req.params;
+  const user = await User.findOne({token});
+  const restaurantResponse = await Restaurant.findOne({token: restaurantToken});
+  const restaurantId = restaurantResponse._id;
+  //User already liked the restaurant
+  if (user.likes.find((restaurant) => restaurant._id.valueOf() === restaurantId.valueOf())) {
+    res.json({result: true});
+  } else {
+    res.json({result: false});
+  } //Add restaurant ID to likes
 
 });
 
