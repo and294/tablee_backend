@@ -166,7 +166,7 @@ router.post("/upVote/:token/:reviewId", async function (req, res) {
   res.json({result: true, targetReview});
 });
 
-// Upvote:
+// Downvote:
 router.post("/downVote/:token/:reviewId", async function (req, res) {
   const {token, reviewId} = req.params;
   const {restaurantToken} = req.body;
