@@ -27,25 +27,23 @@ var server = http.createServer(app);
 
 const generateID = () => Math.random().toString(36).substring(2, 10);
 
-
 var io = require("socket.io")(server);
 io.on("connection", function (socket) {
-
-
   //Message de connection d'un utilisateur
   console.log(`⚡: ${socket.id} user just connected!`);
+
+  //Reception d'un message du frontend
+  socket.on("sendMessage", function (message) {
+    console.log("recoit message socket back", message);
+    //Renvoi le message vers le frontend
+    io.emit("sendMessageFromBack", message);
+  });
+
   //Message de déconnection d'un utilisateur
   socket.on("disconnect", () => {
     socket.disconnect();
     console.log("🔥: A user disconnected");
   });
-
-//Reception d'un message du frontend
-  socket.on("sendMessage", function (message) {
-    console.log(message);
-    socket.emit("sendMessageFromBack", message);
-  });
-
 
   //Creation de nouveau chat
   socket.on("createRoom", (groupName) => {
@@ -62,11 +60,6 @@ io.on("connection", function (socket) {
     });
 
 
-    socket.on("newMessage", (data) => {
-      console.log(data);
-      socket.emit("sendMessageFromBack", data);
-
-
       //Structure d'un message
       const newMessage = {
         id: generateID(),
@@ -76,8 +69,7 @@ io.on("connection", function (socket) {
       };
     });
   });
-  
-});
+
 
 /**
  * Listen on provided port, on all network interfaces.
