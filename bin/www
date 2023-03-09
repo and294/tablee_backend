@@ -58,15 +58,6 @@ io.on("connection", function (socket) {
       socket.join(groupName);
       socket.emit("roomsList", groupName);
     });
-
-
-      //Structure d'un message
-      const newMessage = {
-        id: generateID(),
-        text: message,
-        user,
-        time: `${timestamp.hour}:${timestamp.mins}`,
-      };
     });
   });
 
