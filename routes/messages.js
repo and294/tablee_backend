@@ -15,26 +15,6 @@ router.get("/rooms", (req, res) => {
   });
 });
 
-// création d'une nouvelle conversation
-/*router.post("/newRoom", (req, res) => {
-    const {id, name} = req.body
-               ChatRoom.findOne({id: id})
-    .then(data => {
-       if(data) {
-        res.json({error: 'ChatRoom already exists'})
-       } else {
-        const newRoom = new ChatRoom({
-            id: id,
-            name: name,
-            messages: []
-        })
-        newRoom.save().then(data => {
-            res.json({rooms: data})
-        })
-       }
-    }) 
-})*/
-
 //Envoi de message
 router.post("/send", (req, res) => {
   const { user, roomId, date, message } = req.body;
